@@ -9,7 +9,7 @@ constraint
 
 solve satisfy;
 
-output [
-  "x = ", show(x), "\n",
-  "y = ", show(y), "\n",
-  ];
+%output [
+%  "x = ", show(x), "\n",
+%  "y = ", show(y), "\n",
+%  ];	

@@ -37,7 +37,7 @@ available = [
  {1,2,3,4,5,6} % 1) the only with 1
 ];
 
-output
-[
-  show(x)
-];
+%output
+%[
+%  show(x)
+%];
