@@ -19,9 +19,13 @@ def Solve(solver):
 		def output_line():
 			output = []
 			with Popen(["MiniZinc", solver+".mzn", "-a"], stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+				solution = []
 				for line in p.stdout:
 					if line.rstrip() != '----------':
-						yield json.dumps(line.rstrip())
+						solution.append(line.rstrip())
+					else:
+						yield json.dumps(solution)
+						solution = []
 					#print(line, end='')
 		#output = pymzn.minizinc("" + solver + ".mzn")#, data={'n':4})
 		#return json.jsonify(output)
