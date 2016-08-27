@@ -17,13 +17,16 @@ def Allmodels():
 #inputs models musn't 'output'
 @app.route('/model/<string:model>.json')
 def Model(model):
+	# TODO: Pass n / other arguments to minizinc.
+	n = request.args.get('n')
+
 	if (model+".mzn" in models):
 		def output_line():
 			with Popen(["minizinc", folder + '/' + model+".mzn", "-a"], stdout=PIPE, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 				for line in p.stdout:
 					markup = ['----------','==========']
 					if line.rstrip() not in markup: #each new solution is a new JSON object
-						yield str(pymzn.parse_dzn(line)) #use pymzn to turn output into nice JSON objects
+						yield str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
 		return Response(output_line(),  mimetype='text/json')
 	else:
 		return json.jsonify(model="no model found")
