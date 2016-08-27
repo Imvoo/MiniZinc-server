@@ -1,7 +1,7 @@
 import pymzn
 import os
 from subprocess import Popen, PIPE
-from flask import Flask, json, Response
+from flask import Flask, json, Response, request
 app = Flask(__name__)
 
 folder = 'models' #where the .mzn files are stored
