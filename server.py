@@ -19,7 +19,7 @@ def Allmodels():
 def Model(model):
 	if (model+".mzn" in models):
 		def output_line():
-			with Popen(["MiniZinc", folder + '/' + model+".mzn", "-a"], stdout=PIPE, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+			with Popen(["minizinc", folder + '/' + model+".mzn", "-a"], stdout=PIPE, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 				for line in p.stdout:
 					markup = ['----------','==========']
 					if line.rstrip() not in markup: #each new solution is a new JSON object
@@ -27,3 +27,12 @@ def Model(model):
 		return Response(output_line(),  mimetype='text/json')
 	else:
 		return json.jsonify(model="no model found")
+
+# TODO: Unsure if this is safe security wise, have to look into it.
+# aka. CORS request.
+@app.after_request
+def after_request(response):
+  response.headers.add('Access-Control-Allow-Origin', '*')
+  response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
+  return response
