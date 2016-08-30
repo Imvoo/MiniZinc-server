@@ -15,6 +15,7 @@
 
 
 int: n;                                 % The number of queens.
+int: a;
 
 array [1..n] of var 1..n: q;
 

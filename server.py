@@ -10,6 +10,26 @@ for file in os.listdir(folder):
 	if file.endswith('.mzn'):
 		models.append(file)
 
+def FindInputs(model):
+	print("modelzzdszd")
+	with Popen(["minizinc", folder + '/' + model], stdout=PIPE, bufsize=1, universal_newlines=True) as p:
+		for line in p.stdout:
+			print("newlin")
+			print(line)
+			print (str(line))
+			yield line
+
+@app.route('/inputs/<string:model>')
+def GetInputs(model):
+	print(model)
+	model = model + ".mzn"
+	if model in models:
+		print("Finding")
+		a = FindInputs(model)
+		return Response(a)
+		return ""
+	return ""
+
 @app.route('/')
 def Allmodels():
 	return json.jsonify(result=models)
@@ -22,6 +42,13 @@ def Model(model):
 
 	if (model+".mzn" in models):
 		def output_line():
+			# TODO: Abstract input parsing.
+			# Maybe if we passed in the inputs in the query, e.g. inputs = request.args.get('inputs').
+			# That will be passed as maybe an array or something, then we just iterate over the array
+			# 	and give it to minizinc with "-D", input[i] + "=" + actual value.
+			# 	E.g. if input[0] = 'n',
+			# 	process.append("-D")
+			# 	process.append(input[0] + "=" + n)
 			with Popen(["minizinc", folder + '/' + model+".mzn", "-a", "-D", "n=" + n], stdout=PIPE, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 				for line in p.stdout:
 					markup = ['----------','==========']
