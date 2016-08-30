@@ -22,7 +22,7 @@ def Model(model):
 
 	if (model+".mzn" in models):
 		def output_line():
-			with Popen(["minizinc", folder + '/' + model+".mzn", "-a"], stdout=PIPE, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+			with Popen(["minizinc", folder + '/' + model+".mzn", "-a", "-D", "n=" + n], stdout=PIPE, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 				for line in p.stdout:
 					markup = ['----------','==========']
 					if line.rstrip() not in markup: #each new solution is a new JSON object

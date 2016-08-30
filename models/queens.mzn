@@ -14,7 +14,7 @@
 % output [show(q)];
 
 
-int: n=6;                                 % The number of queens.
+int: n;                                 % The number of queens.
 
 array [1..n] of var 1..n: q;
 
