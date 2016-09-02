@@ -1,6 +1,6 @@
 import pymzn
 import os
-from subprocess import Popen, PIPE
+from subprocess import Popen, PIPE, STDOUT
 from flask import Flask, json, Response, request
 app = Flask(__name__)
 
@@ -17,12 +17,14 @@ def Allmodels():
 #inputs models musn't 'output'
 @app.route('/model/<string:model>.json')
 def Model(model):
-	# TODO: Pass n / other arguments to minizinc.
-	n = request.args.get('n')
+	mzn_args = ''
+	for p in request.args.keys():
+		mzn_args += str(p) + "=" + str(request.args.get(p)) + ";"
 
 	if (model+".mzn" in models):
 		def output_line():
-			with Popen(["minizinc", folder + '/' + model+".mzn", "-a", "-D", "n=" + n], stdout=PIPE, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+			with Popen(["minizinc", folder + '/' + model+".mzn", "-a", "-D", mzn_args],
+				stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 				for line in p.stdout:
 					markup = ['----------','==========']
 					if line.rstrip() not in markup: #each new solution is a new JSON object
