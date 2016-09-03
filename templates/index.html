@@ -19,15 +19,11 @@
 					socket.emit('value changed', {who: $(this).attr('id'), data: $(this).val()});
 					return false;
 				});
-				
-				socket.on('send_json', function(msg) {
-					$('div.test').text(msg.data)
-            	});
+
 			});
 		</script>
 	</head>
 	<body>
-		<div class="test">
-		</div>
+		Blah
 	</body>
 </html>
