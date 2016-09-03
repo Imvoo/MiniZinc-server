@@ -4,6 +4,33 @@ from subprocess import Popen, PIPE, STDOUT
 from flask import Flask, json, Response, request
 app = Flask(__name__)
 
+from flask import Flask, render_template
+from flask_socketio import SocketIO
+
+
+#SOCKETS
+
+app = Flask(__name__)
+app.config['SECRET_KEY'] = 'secret!'
+socketio = SocketIO(app)
+
+if __name__ == '__main__':
+    socketio.run(app)
+    
+@app.route("/")
+def index():
+    return render_template('index.html',)
+
+@socketio.on('send_message')
+def handle_source(json_data):
+    text = json_data['message'].encode('ascii', 'ignore')
+    socketio.emit('echo', {'echo': 'Server Says: '+text})
+
+if __name__ == "__main__":
+    socketio.run(app)
+
+##END SOCKETS
+    
 folder = 'models' #where the .mzn files are stored
 models = []
 for file in os.listdir(folder):
