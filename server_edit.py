@@ -1,8 +1,20 @@
 import pymzn
 import os
+<<<<<<< Updated upstream
 from subprocess import Popen, PIPE, STDOUT
+=======
+from subprocess import Popen, PIPE
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
 from flask import Flask, json, Response, request
+=======
+from flask import Flask, json, Response, render_template
+from flask.ext.socketio import SocketIO, emit
+
+
+>>>>>>> Stashed changes
 app = Flask(__name__)
+socketio = SocketIO(app)
 
 folder = 'models' #where the .mzn files are stored
 models = []
@@ -33,6 +45,7 @@ def Model(model):
 	else:
 		return json.jsonify(model="no model found")
 
+<<<<<<< Updated upstream
 # TODO: Unsure if this is safe security wise, have to look into it.
 # aka. CORS request.
 @app.after_request
@@ -41,3 +54,26 @@ def after_request(response):
   response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
   return response
+=======
+
+@socketio.on('value changed')
+def value_changed(message):
+    values[message['who']] = message['data']
+    emit('update value', message, broadcast=True)
+
+@app.route('/index')
+def index():
+	socket()
+	return render_template('index.html')
+
+
+def socket():
+	with Popen(["MiniZinc", "models/test.mzn", "-a"], stdout=PIPE, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+		for line in p.stdout:
+			markup = ['----------','==========']
+			if line.rstrip() not in markup: #each new solution is a new JSON object
+				socketio.emit('send_json',pymzn.parse_dzn(line)) #use pymzn to turn output into nice JSON objects
+
+if __name__ == '__main__':
+    socketio.run(app, host='0.0.0.0')
+>>>>>>> Stashed changes
