@@ -22,6 +22,7 @@
 - Pip
     - Should come pre-installed with Python 3.5.
 - Flask
+- Flask-Socketio
 - Pymzn
 - Minizinc
     - http://www.minizinc.org/software.html
@@ -31,6 +32,7 @@
 
 1. Assuming you have **python** and **pip** installed, run the following two commands in your cmd/terminal window:
     - `pip install flask`
+    - `pip install flask-socketio`
     - `pip install pymzn`
 2. After you have the dependencies installed, in order for Flask to run it needs to know what the server file is called.
     - The environment variable `FLASK_APP` needs to be set. To do this:
