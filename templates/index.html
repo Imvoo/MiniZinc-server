@@ -17,14 +17,14 @@
 				socket.emit('request_solution', {model: '{{model}}', n: '{{n}}'});
 				//http://www.matthieuamiguet.ch/blog/synchronize-clients-flask-application-websockets
 
-				socket.on('solution', function(msg) {
-					console.log(msg);
+				socket.on('solution', function(solution) {
+					console.log(solution);
 				});
 
 			});
     	</script>
 	</head>
 	<body>
-		Blah
+		View JS console
 	</body>
 </html>
