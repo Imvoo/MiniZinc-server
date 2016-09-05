@@ -14,6 +14,7 @@
 					console.log("Connected");
 					socket.emit('request_template', {data: 'queens'});
 				});
+				//http://www.matthieuamiguet.ch/blog/synchronize-clients-flask-application-websockets
 
 				socket.on('solution', function(msg) {
 					console.log(msg);

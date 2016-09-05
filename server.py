@@ -55,12 +55,10 @@ def after_request(response):
   return response
 
 
-
 @app.route('/stream')
 def stream():
 	return render_template('index.html')
 
-#why doesn't this run?
 @socketio.on('request_template')
 def request_template(model):
 	with Popen(["minizinc", folder + '/' + model['data']+".mzn", "-a", "-D"], stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
