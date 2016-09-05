@@ -55,10 +55,10 @@ def after_request(response):
   return response
 
 
-
 @app.route('/stream')
 def stream():
 	return render_template('index.html')
+
  
 #why doesn't this run?   
 @socketio.on('request template')
@@ -69,7 +69,7 @@ def request_template(model):
 			if line.rstrip() not in markup: #each new solution is a new JSON object
 				solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
 				emit('solution', solution, broadcast=True)
-				
+					
 #run
 if __name__ == '__main__':
 	socketio.run(app)

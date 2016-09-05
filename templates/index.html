@@ -12,11 +12,14 @@
 
 				socket.on('connect', function() {
 					//alert('blah');
-					socket.emit('connect', {data: 'I\'m connected!'});					
+					socket.emit('connect', {data: 'I\'m connected!'});
+								
 					
 				});
 				
-				socket.emit('request template', {data: 'queens'});
+				socket.emit('request template', {data: 'queens'});		
+				//http://www.matthieuamiguet.ch/blog/synchronize-clients-flask-application-websockets
+				
 				
 				
 
