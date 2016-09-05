@@ -1,6 +1,6 @@
 include "globals.mzn";
 
-int: m = 9;
+int: m;
 int: n = m*m;
 
 array[1..m] of var 0..n: mark;

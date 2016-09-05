@@ -56,7 +56,7 @@ def after_request(response):
   return response
 
 #sockets
-@app.route('/model/<string:model>')
+@app.route('/stream/<string:model>')
 def stream(model):
 	arguments = {
 		'model': model,		

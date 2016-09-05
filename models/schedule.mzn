@@ -11,7 +11,7 @@
 
 include "globals.mzn"; 
 
-int: n = 6; % number of speakers
+int: n; % number of speakers
 array[1..n] of set of 1..n: available; % the available slots 
 array[1..n] of var 1..n: x; % the alotted speaker slot
 

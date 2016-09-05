@@ -45,7 +45,9 @@
 
 **NOTE: The REST API is formatted a little bit weirdly at the moment (not akin to a real REST API) this will be fixed in the future).**
 
-The MiniZinc server solves certain MiniZinc files on the backend and returns the output as JSON in the form of a REST api. All the following URLs will be relative to the root URL, i.e. the REST api is accessed by appending certain URLs like `/models/queens.json?n=4` to `localhost:5000`.
+The MiniZinc server solves certain MiniZinc files on the backend and returns the output. All the following URLs will be relative to the root URL, i.e. the REST api is accessed by appending certain URLs like `/models/queens.json?n=4` to `localhost:5000`.
+
+`.mzn` model files must not have any output format defined, nor have any parameters with values set prior to being run by the server.
 
 ### /
 ##### Overview
@@ -71,7 +73,17 @@ Returns the MiniZinc model files available in the server.
 ### /models/\<modelName\>.json
 
 ##### Overview
-Solves the input MiniZinc model file in the backend.
+Solves the input MiniZinc model file in the backend and outputs as a REST API.
+
+##### Parameters
+
+- `<modelName>`: the name of the MiniZinc model **(required)**.
+- `n`: number of Queens to solve. (only applicable to Queens at the moment). **(required)**
+
+### /stream/\<modelName\>
+
+##### Overview
+Solves the input MiniZinc model file in the backend and streams each solution as it comes.
 
 ##### Parameters
 
