@@ -25,6 +25,7 @@ for file in os.listdir(folder):
 def Allmodels():
 	return json.jsonify(result=models)
 
+#REST
 #inputs models musn't 'output'
 @app.route('/model/<string:model>.json')
 def Model(model):
@@ -54,15 +55,27 @@ def after_request(response):
   response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE')
   return response
 
+#sockets
+@app.route('/model/<string:model>')
+def stream(model):
+	arguments = {
+		'model': model,		
+	}
+	for arg in request.args.keys():
+		arguments[arg] = request.args.get(arg)
+	return render_template('index.html', **arguments)
 
-@app.route('/stream')
-def stream():
-	return render_template('index.html')
-
-@socketio.on('request_template')
-def request_template(model):
-	with Popen(["minizinc", folder + '/' + model['data']+".mzn", "-a", "-D"], stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+@socketio.on('request_solution')
+def request_solution(data):
+	#data must have 'model' attribute
+	mzn_args = ''
+	for arg in data:
+		if arg != 'model':
+			mzn_args += str(arg) + "=" + str(data[arg]) + ";"
+	with Popen(["minizinc", folder + '/' + data['model']+".mzn", "-a", "-D",mzn_args],
+		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 		for line in p.stdout:
+
 			markup = ['----------','==========']
 			if line.rstrip() not in markup: #each new solution is a new JSON object
 				solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects

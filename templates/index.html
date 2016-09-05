@@ -7,13 +7,14 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
 		<script type="text/javascript" charset="utf-8">
 			$(document).ready(function(){
-				console.log("Ready");
+				//console.log("Ready");
 				var socket = io.connect();
 
 				socket.on('connect', function() {
-					console.log("Connected");
-					socket.emit('request_template', {data: 'queens'});
+					//console.log("Connected");
+					
 				});
+				socket.emit('request_solution', {model: '{{model}}', n: '{{n}}'});
 				//http://www.matthieuamiguet.ch/blog/synchronize-clients-flask-application-websockets
 
 				socket.on('solution', function(msg) {
