@@ -1,27 +1,22 @@
 <html>
 	<head>
 		<title>Stream testing</title>
-		
+
 		<!-- imports -->
 		<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 		<script type="text/javascript" charset="utf-8">
 			$(document).ready(function(){
+				console.log("Ready");
 				var socket = io.connect();
 
 				socket.on('connect', function() {
-					//alert('blah');
-					socket.emit('connect', {data: 'I\'m connected!'});					
-					
+					console.log("Connected");
+					socket.emit('request_template', {data: 'queens'});
 				});
-				
-				socket.emit('request template', {data: 'queens'});
-				
-				
 
 				socket.on('solution', function(msg) {
-					alert(msg);
+					console.log(msg);
 				});
 
 			});

@@ -11,10 +11,10 @@ app.config['SECRET_KEY'] = 'secret!'
 
 #sockets
 socketio = SocketIO(app)
-  
-    
 
-#REST    
+
+
+#REST
 folder = 'models' #where the .mzn files are stored
 models = []
 for file in os.listdir(folder):
@@ -59,17 +59,17 @@ def after_request(response):
 @app.route('/stream')
 def stream():
 	return render_template('index.html')
- 
-#why doesn't this run?   
-@socketio.on('request template')
+
+#why doesn't this run?
+@socketio.on('request_template')
 def request_template(model):
-	with Popen(["minizinc", folder + '/' + model+".mzn", "-a", "-D"], stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+	with Popen(["minizinc", folder + '/' + model['data']+".mzn", "-a", "-D"], stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 		for line in p.stdout:
 			markup = ['----------','==========']
 			if line.rstrip() not in markup: #each new solution is a new JSON object
 				solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
 				emit('solution', solution, broadcast=True)
-				
+
 #run
 if __name__ == '__main__':
 	socketio.run(app)
