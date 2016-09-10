@@ -45,11 +45,11 @@
 
 **NOTE: The REST API is formatted a little bit weirdly at the moment (not akin to a real REST API) this will be fixed in the future).**
 
-The MiniZinc server solves certain MiniZinc files on the backend and returns the output. All the following URLs will be relative to the root URL, i.e. the REST api is accessed by appending certain URLs like `/models/queens.json?n=4` to `localhost:5000`.
+The MiniZinc server solves certain MiniZinc files on the backend and returns the output. All the following URLs will be relative to the root URL, i.e. the REST api is accessed by appending certain URLs like `/models/queens` to `localhost:5000`.
 
 `.mzn` model files must not have any output format defined, nor have any parameters with values set prior to being run by the server.
 
-### /
+### /models
 ##### Overview
 Returns the MiniZinc model files available in the server.
 
@@ -61,7 +61,7 @@ Returns the MiniZinc model files available in the server.
 
 ```
 {
-  "result": [
+  "models": [
     "queens.mzn",
     "schedule.mzn",
     "test.mzn",
@@ -70,15 +70,38 @@ Returns the MiniZinc model files available in the server.
 }
 ```
 
-### /models/\<modelName\>.json
-
+### /models/\<modelName\>
 ##### Overview
-Solves the input MiniZinc model file in the backend and outputs as a REST API.
+Returns the input arguments for the specified Minizinc model.
 
 ##### Parameters
 
 - `<modelName>`: the name of the MiniZinc model **(required)**.
-- `n`: number of Queens to solve. (only applicable to Queens at the moment). **(required)**
+
+##### Sample Output
+
+```
+{
+  "capacity": "array(int)",
+  "consumption": "array(int)",
+  "nproducts": "int",
+  "nresources": "int",
+  "pname": "array(string)",
+  "profit": "array(int)",
+  "rname": "array(string)"
+}
+```
+
+### /solve/\<modelName\>
+
+##### Overview
+Solves the input MiniZinc model file in the backend and outputs in JSON. Add extra parameters by using `?<parameterName>=<result>`.
+
+E.g. `localhost:5000/solve/exampleModel?arg1=ex1&arg2=ex2`
+
+##### Parameters
+
+- `<modelName>`: the name of the MiniZinc model **(required)**.
 
 ### /stream/\<modelName\>
 

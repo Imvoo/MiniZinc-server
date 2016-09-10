@@ -1,6 +1,7 @@
 #imports
 import pymzn
 import os
+import re
 from subprocess import Popen, PIPE, STDOUT
 from flask import Flask, json, Response, request, render_template
 from flask_socketio import SocketIO, emit
@@ -12,8 +13,6 @@ app.config['SECRET_KEY'] = 'secret!'
 #sockets
 socketio = SocketIO(app)
 
-
-
 #REST
 folder = 'models' #where the .mzn files are stored
 models = []
@@ -21,13 +20,37 @@ for file in os.listdir(folder):
 	if file.endswith('.mzn'):
 		models.append(file)
 
-@app.route('/')
+def FindArgs(model):
+	args = dict()
+	file = open(folder + "/" + model + ".mzn")
+	for line in file:
+		line = line.split('%', 1)[0]
+		if re.compile("^.*:.\w+;").match(line) and line.find("var") == -1 and line.find("set") == -1:
+			tokens = re.compile('\w+').findall(line)
+			if (tokens[0] == 'array'):
+				args[tokens[-1]] = 'array(' + tokens[-2] + ')'
+			else:
+				args[tokens[-1]] = tokens[-2]
+
+	return args
+
+@app.route('/models')
 def Allmodels():
-	return json.jsonify(result=models)
+	return json.jsonify(models=models)
+
+@app.route('/models/<string:model>')
+@app.route('/models/<string:model>.mzn')
+@app.route('/models/<string:model>.json')
+def Arguments(model):
+	if (model+".mzn" in models):
+		tmpArgs = FindArgs(model)
+		return json.jsonify(tmpArgs)
+	else:
+		return json.jsonify(model="no model found")
 
 #REST
 #inputs models musn't 'output'
-@app.route('/model/<string:model>.json')
+@app.route('/solve/<string:model>')
 def Model(model):
 	mzn_args = ''
 	for p in request.args.keys():
@@ -59,7 +82,7 @@ def after_request(response):
 @app.route('/stream/<string:model>')
 def stream(model):
 	arguments = {
-		'model': model,		
+		'model': model,
 	}
 	for arg in request.args.keys():
 		arguments[arg] = request.args.get(arg)
