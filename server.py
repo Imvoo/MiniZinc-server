@@ -100,9 +100,11 @@ def stream(model):
 def request_solution(data):
 	#data must have 'model' attribute
 	mzn_args = ''
-	for arg in data:
-		if arg != 'model':
-			mzn_args += str(arg) + "=" + str(data[arg]) + ";"
+	args = data['args'].split('&')[:-1]
+	for arg in args:
+		arg = arg.split('=')
+		if arg[0] != 'model':
+			mzn_args += str(arg[0]) + "=" + str(arg[1]) + ";"
 	with Popen(["minizinc", folder + '/' + data['model']+".mzn", "-a", "-D",mzn_args],
 		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True, shell=True) as p: #-a outputs all solutions
 		for line in p.stdout:
