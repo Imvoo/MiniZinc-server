@@ -21,18 +21,26 @@ for file in os.listdir(folder):
 		models.append(file)
 
 def FindArgs(model):
-	args = dict()
+	output = [dict(),dict()] #[0] are inputs, [1] are outputs
 	file = open(folder + "/" + model + ".mzn")
 	for line in file:
 		line = line.split('%', 1)[0]
-		if re.compile("^.*:.\w+;").match(line) and line.find("var") == -1 and line.find("set") == -1: #outputs have a var
-			tokens = re.compile('\w+').findall(line)
-			if (tokens[0] == 'array'):
-				args[tokens[-1]] = 'array(' + tokens[-2] + ')'
-			else:
-				args[tokens[-1]] = tokens[-2]
+		if re.compile("^.*:.\w+;").match(line) and line.find("set") == -1:
+			if line.find("var") == -1: #an input
+				tokens = re.compile('\w+').findall(line)
+				if (tokens[0] == 'array'):
+					output[0][tokens[-1]] = 'array(' + tokens[-2] + ')'
+				else:
+					output[0][tokens[-1]] = tokens[-2]
+			else: #an output
+				tokens = re.compile('\w+').findall(line)
+				if (tokens[0] == 'array'):
+					output[1][tokens[-1]] = 'array(' + tokens[-2] + ')'
+				else:
+					output[1][tokens[-1]] = tokens[-2]
 
-	return args
+
+	return output
 
 @app.route('/models')
 def Allmodels():
@@ -43,7 +51,7 @@ def Allmodels():
 @app.route('/models/<string:model>.json')
 def Arguments(model):
 	if (model+".mzn" in models):
-		tmpArgs = FindArgs(model)
+		tmpArgs = FindArgs(model)[0]
 		return json.jsonify(tmpArgs)
 	else:
 		return json.jsonify(model="no model found")
@@ -59,7 +67,7 @@ def Model(model):
 	if (model+".mzn" in models):
 		def output_line():
 			with Popen(["minizinc", folder + '/' + model+".mzn", "-a", "-D", mzn_args],
-				stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+				stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True, shell=True) as p: #-a outputs all solutions
 				for line in p.stdout:
 					markup = ['----------','==========']
 					if line.rstrip() not in markup: #each new solution is a new JSON object
@@ -96,7 +104,7 @@ def request_solution(data):
 		if arg != 'model':
 			mzn_args += str(arg) + "=" + str(data[arg]) + ";"
 	with Popen(["minizinc", folder + '/' + data['model']+".mzn", "-a", "-D",mzn_args],
-		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True, shell=True) as p: #-a outputs all solutions
 		for line in p.stdout:
 
 			markup = ['----------','==========']
