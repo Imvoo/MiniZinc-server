@@ -25,7 +25,7 @@ def FindArgs(model):
 	file = open(folder + "/" + model + ".mzn")
 	for line in file:
 		line = line.split('%', 1)[0]
-		if re.compile("^.*:.\w+;").match(line) and line.find("var") == -1 and line.find("set") == -1:
+		if re.compile("^.*:.\w+;").match(line) and line.find("var") == -1 and line.find("set") == -1: #outputs have a var
 			tokens = re.compile('\w+').findall(line)
 			if (tokens[0] == 'array'):
 				args[tokens[-1]] = 'array(' + tokens[-2] + ')'
