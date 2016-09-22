@@ -66,12 +66,8 @@ def Model(model):
 	print(mzn_args)
 	if (model+".mzn" in models):
 		def output_line():
-<<<<<<< Updated upstream
-			with Popen(["minizinc", folder + '/' + model+".mzn", "-a", "-D", mzn_args],
-=======
 			directory = os.path.dirname(os.path.realpath(__file__))
 			with Popen(["minizinc", directory + '/' + folder + '/' + model+".mzn", "-a", "-D", mzn_args],
->>>>>>> Stashed changes
 				stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 				for line in p.stdout:
 					markup = ['----------','==========']
