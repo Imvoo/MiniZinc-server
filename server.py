@@ -63,7 +63,6 @@ def Model(model):
 	mzn_args = ''
 	for p in request.args.keys():
 		mzn_args += str(p) + "=" + str(request.args.get(p)) + ";"
-	print(mzn_args)
 	if (model+".mzn" in models):
 		def output_line():
 			directory = os.path.dirname(os.path.realpath(__file__))
@@ -97,6 +96,8 @@ def stream(model):
 		arguments[arg] = request.args.get(arg)
 	return render_template('index.html', **arguments)
 
+user_dict = dict()
+
 @socketio.on('request_solution')
 def request_solution(data):
 	#data must have 'model' attribute
@@ -108,12 +109,21 @@ def request_solution(data):
 			mzn_args += str(arg[0]) + "=" + str(arg[1]) + ";"
 	with Popen(["minizinc", folder + '/' + data['model']+".mzn", "-a", "-D",mzn_args],
 		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+		user_dict[request.sid] = p
+		#print(p)
 		for line in p.stdout:
 
 			markup = ['----------','==========']
 			if line.rstrip() not in markup: #each new solution is a new JSON object
 				solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
 				socketio.emit('solution', solution)
+				#print(request.sid)
+				print(user_dict[request.sid])
+
+@socketio.on('kill_solution')
+def kill_solution():
+	p = user_dict[request.sid]
+	p.kill()
 
 #run
 if __name__ == '__main__':
