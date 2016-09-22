@@ -63,11 +63,11 @@ def Model(model):
 	mzn_args = ''
 	for p in request.args.keys():
 		mzn_args += str(p) + "=" + str(request.args.get(p)) + ";"
-
+	print(mzn_args)
 	if (model+".mzn" in models):
 		def output_line():
 			with Popen(["minizinc", folder + '/' + model+".mzn", "-a", "-D", mzn_args],
-				stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True, shell=True) as p: #-a outputs all solutions
+				stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 				for line in p.stdout:
 					markup = ['----------','==========']
 					if line.rstrip() not in markup: #each new solution is a new JSON object
@@ -106,7 +106,7 @@ def request_solution(data):
 		if arg[0] != 'model':
 			mzn_args += str(arg[0]) + "=" + str(arg[1]) + ";"
 	with Popen(["minizinc", folder + '/' + data['model']+".mzn", "-a", "-D",mzn_args],
-		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True, shell=True) as p: #-a outputs all solutions
+		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 		for line in p.stdout:
 
 			markup = ['----------','==========']
