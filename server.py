@@ -42,6 +42,17 @@ def FindArgs(model):
 
 	return output
 
+@app.route('/save_template', methods=['GET', 'POST'])
+def SaveTemplate():
+	if not os.path.exists('./app_templates/'):
+		os.makedirs('./app_templates/', exist_ok=True)
+
+	file = open('./app_templates/' + request.json['name'] + '.json', 'w')
+	json.dump(request.json, file, indent=4)
+	file.close()
+
+	return "Success"
+
 @app.route('/models')
 def Allmodels():
 	return json.jsonify(models=models)
