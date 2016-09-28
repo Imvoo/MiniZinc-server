@@ -42,6 +42,18 @@ def FindArgs(model):
 
 	return output
 
+@app.route('/get_template/<string:model>')
+def GetTemplate(model):
+	template = {
+		"error": "no template found"
+	}
+	for file in os.listdir('app_templates'):
+		if file == model + '.json':
+			tempFile = open('./app_templates/' + model + '.json', 'r')
+			template = json.load(tempFile)
+
+	return json.jsonify(template)
+
 @app.route('/save_template', methods=['GET', 'POST'])
 def SaveTemplate():
 	if not os.path.exists('./app_templates/'):
@@ -55,7 +67,7 @@ def SaveTemplate():
 
 @app.route('/models')
 def Allmodels():
-	return json.jsonify(models=models)
+	return json.jsonify(models)
 
 @app.route('/models/<string:model>')
 @app.route('/models/<string:model>.mzn')
@@ -65,7 +77,7 @@ def Arguments(model):
 		tmpArgs = FindArgs(model)[0]
 		return json.jsonify(tmpArgs)
 	else:
-		return json.jsonify(model="no model found")
+		return json.jsonify(error="no model found")
 
 #REST
 #inputs models musn't 'output'
@@ -86,7 +98,7 @@ def Model(model):
 						yield solution
 		return Response(output_line(),  mimetype='text/json')
 	else:
-		return json.jsonify(model="no model found")
+		return json.jsonify(error="no model found")
 
 # TODO: Unsure if this is safe security wise, have to look into it.
 # aka. CORS request.
