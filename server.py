@@ -42,6 +42,16 @@ def FindArgs(model):
 
 	return output
 
+def FindArgsProper(model):
+	directory = os.path.dirname(os.path.realpath(__file__))
+	jsonArgs = ''
+	with Popen(["mzn2fzn", "--model-interface-only", folder + '/' + model + ".mzn"],
+		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+		for line in p.stdout:
+			jsonArgs += line
+
+	return json.loads(jsonArgs)
+
 @app.route('/get_template/<string:model>')
 def GetTemplate(model):
 	template = {
@@ -74,7 +84,7 @@ def Allmodels():
 @app.route('/models/<string:model>.json')
 def Arguments(model):
 	if (model+".mzn" in models):
-		tmpArgs = FindArgs(model)
+		tmpArgs = FindArgsProper(model)
 		return json.jsonify(tmpArgs)
 	else:
 		return json.jsonify(error="no model found")
