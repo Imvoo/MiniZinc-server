@@ -74,7 +74,7 @@ def Allmodels():
 @app.route('/models/<string:model>.json')
 def Arguments(model):
 	if (model+".mzn" in models):
-		tmpArgs = FindArgs(model)[0]
+		tmpArgs = FindArgs(model)
 		return json.jsonify(tmpArgs)
 	else:
 		return json.jsonify(error="no model found")
@@ -133,7 +133,6 @@ def request_solution(data):
 	with Popen(["minizinc", folder + '/' + data['model']+".mzn", "-a", "-D",mzn_args],
 		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 		user_dict[request.sid] = p
-		#print(p)
 		for line in p.stdout:
 
 			markup = ['----------','==========']
@@ -141,7 +140,6 @@ def request_solution(data):
 				solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
 				socketio.emit('solution', solution)
 				#print(request.sid)
-				print(user_dict[request.sid])
 
 @socketio.on('kill_solution')
 def kill_solution():
