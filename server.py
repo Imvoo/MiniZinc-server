@@ -96,10 +96,14 @@ def Model(model):
 	mzn_args = ''
 	for p in request.args.keys():
 		mzn_args += str(p) + "=" + str(request.args.get(p)) + ";"
+
 	if (model+".mzn" in models):
 		def output_line():
 			directory = os.path.dirname(os.path.realpath(__file__))
-			with Popen(["minizinc", directory + '/' + folder + '/' + model+".mzn", "-a", "-D", mzn_args],
+			realPath = directory + "/" + folder + "/" + model+".mzn"
+
+			# TODO: change this into it's separate process / real path.
+			with Popen(["minizinc", folder + "/" + model + ".mzn", "-a", "-D", mzn_args],
 				stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 				for line in p.stdout:
 					markup = ['----------','==========']

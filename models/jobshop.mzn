@@ -86,7 +86,7 @@ constraint
 %         if
 %            job_task_machine[ja, ka]  =  job_task_machine[jb, kb]
 %         then
-%             no_overlap( 
+%             no_overlap(
 %                 job_task_start[ja, ka], job_task_duration[ja, ka],
 %                 job_task_start[jb, kb], job_task_duration[jb, kb]
 %             )
@@ -118,27 +118,26 @@ constraint
             t_end
     );
 
-   
+
 %-----------------------------------------------------------------------------%
 % Objective.
 %
 
 %include "gecode.mzn";
 
-solve 
+solve
 % ::relax_and_reconstruct(array1d(precedes),90)
  ::int_search(array1d(job_task_start), input_order, indomain_min, complete)
 %  ::seq_search([bool_search(array1d(precedes),dom_w_deg,indomain_max,complete),
 %                int_assign(array1d(job_task_start), indomain_min)])
 minimize t_end;
 
-include "../viz/jobshop.mzn";
-include "../viz/objective.mzn";
-
-output [viz_jobshop(job_task_start, job_task_duration, job_task_machine),"%%%bottom"++viz_objective(t_end)];
+% include "../viz/jobshop.mzn";
+% include "../viz/objective.mzn";
+%
+% output [viz_jobshop(job_task_start, job_task_duration, job_task_machine),"%%%bottom"++viz_objective(t_end)];
 
 %output [show(t_end)];
- 
-%-----------------------------------------------------------------------------%
-%-----------------------------------------------------------------------------%
 
+%-----------------------------------------------------------------------------%
+%-----------------------------------------------------------------------------%

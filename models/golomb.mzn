@@ -34,7 +34,7 @@ constraint alldifferent(differences);
 solve :: int_search(mark, input_order, indomain, complete)
     minimize mark[m];
 
-output [show(mark)];
+% output [show(mark)];
 
 %-----------------------------------------------------------------------------%
 %-----------------------------------------------------------------------------%
