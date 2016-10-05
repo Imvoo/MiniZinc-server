@@ -137,13 +137,22 @@ user_dict = dict()
 
 @socketio.on('request_solution')
 def request_solution(data):
-	#data must have 'model' attribute
 	mzn_args = ''
-	args = data['args'].split('&')[:-1]
-	for arg in args:
-		arg = arg.split('=')
-		if arg[0] != 'model':
-			mzn_args += str(arg[0]) + "=" + str(arg[1]) + ";"
+
+	for key in data:
+		if key != 'model':
+			if 'dim' in data[key]:
+				if data[key]['dim'] == 2:
+					mzn_args += key + "=["
+					for row in data[key]['value']:
+						mzn_args += "| "
+						mzn_args += ', '.join(map(str,row))
+						mzn_args += ' '
+
+					mzn_args += " |];"
+			else:
+				mzn_args += key + "=" + str(data[key]['value']) + ";"
+
 	with Popen(["minizinc", folder + '/' + data['model']+".mzn", "-a", "-D",mzn_args],
 		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 		user_dict[request.sid] = p
