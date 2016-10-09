@@ -161,8 +161,11 @@ def request_solution(data):
 			markup = ['----------','==========']
 			if line.rstrip() not in markup: #each new solution is a new JSON object
 				solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
-				socketio.emit('solution', solution)
+				send_solution(solution)
+
 				#print(request.sid)
+def send_solution(solution):
+	socketio.emit('solution', solution)
 
 @socketio.on('kill_solution')
 def kill_solution():
