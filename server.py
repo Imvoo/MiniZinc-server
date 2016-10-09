@@ -2,9 +2,12 @@
 import pymzn
 import os
 import re
-from subprocess import Popen, PIPE, STDOUT
+from eventlet.green import subprocess
 from flask import Flask, json, Response, request, render_template
 from flask_socketio import SocketIO, emit
+
+import eventlet
+eventlet.monkey_patch(thread=True)
 
 #setup
 app = Flask(__name__)
@@ -45,8 +48,8 @@ def FindArgs(model):
 def FindArgsProper(model):
 	directory = os.path.dirname(os.path.realpath(__file__))
 	jsonArgs = ''
-	with Popen(["mzn2fzn", "--model-interface-only", folder + '/' + model + ".mzn"],
-		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+	with subprocess.Popen(["mzn2fzn", "--model-interface-only", folder + '/' + model + ".mzn"],
+		stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 		for line in p.stdout:
 			jsonArgs += line
 
@@ -103,8 +106,8 @@ def Model(model):
 			realPath = directory + "/" + folder + "/" + model+".mzn"
 
 			# TODO: change this into it's separate process / real path.
-			with Popen(["minizinc", folder + "/" + model + ".mzn", "-a", "-D", mzn_args],
-				stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+			with subprocess.Popen(["minizinc", folder + "/" + model + ".mzn", "-a", "-D", mzn_args],
+				stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 				for line in p.stdout:
 					markup = ['----------','==========']
 					if line.rstrip() not in markup: #each new solution is a new JSON object
@@ -153,19 +156,18 @@ def request_solution(data):
 			else:
 				mzn_args += key + "=" + str(data[key]['value']) + ";"
 
-	with Popen(["minizinc", folder + '/' + data['model']+".mzn", "-a", "-D",mzn_args],
-		stdout=PIPE, stderr=STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+	with subprocess.Popen(["minizinc", folder + '/' + data['model']+".mzn", "-a", "-D",mzn_args],
+		stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 		user_dict[request.sid] = p
 		for line in p.stdout:
 
 			markup = ['----------','==========']
 			if line.rstrip() not in markup: #each new solution is a new JSON object
 				solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
-				send_solution(solution)
+				socketio.emit('solution', solution)
+				print(solution)
 
-				#print(request.sid)
-def send_solution(solution):
-	socketio.emit('solution', solution)
+
 
 @socketio.on('kill_solution')
 def kill_solution():
