@@ -200,8 +200,6 @@ def request_solution(data):
 						thread = Thread(target=sendPacket, kwargs=(currentSolution.copy()))
 						thread.start()
 
-						socketio.emit('solution', currentSolution)
-
 						# THIS DELAY RIGHT HERE...
 						# LITERALLY HOURS SPENT TRYING TO WORK OUT WHY PACKETS AREN'T SENDING...
 						# AND THIS FIXES IT???
