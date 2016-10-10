@@ -2,6 +2,8 @@
 import pymzn
 import os
 import re
+import tempfile
+import shutil
 from eventlet.green import subprocess
 from flask import Flask, json, Response, request, render_template
 from flask_socketio import SocketIO, emit
@@ -153,20 +155,30 @@ def request_solution(data):
 						mzn_args += ' '
 
 					mzn_args += " |];"
+				else:
+					mzn_args += key + "=" + str(data[key]['value']) + ";"
 			else:
 				mzn_args += key + "=" + str(data[key]['value']) + ";"
 
-	with subprocess.Popen(["minizinc", folder + '/' + data['model']+".mzn", "-a", "-D",mzn_args],
-		stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
-		user_dict[request.sid] = p
-		for line in p.stdout:
+	with tempfile.TemporaryDirectory() as tmpDirName:
+		# Copy model file to temp folder.
+		shutil.copy2(folder + '/' + data['model']+".mzn", tmpDirName + '/')
 
-			markup = ['----------','==========']
-			if line.rstrip() not in markup: #each new solution is a new JSON object
-				solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
-				socketio.emit('solution', solution)
-				print(solution)
+		# Create data file in temp folder to feed into MiniZinc.
+		tmpFile = tempfile.NamedTemporaryFile(suffix='.dzn', delete=False, dir=tmpDirName)
+		tmpFile.seek(0)
+		tmpFile.write(str.encode(mzn_args.replace('\'', '\"')))
+		tmpFile.truncate()
+		tmpFile.close()
 
+		with subprocess.Popen(["minizinc", tmpDirName + '/' + data['model']+".mzn", "-a", "-d", tmpFile.name],
+			stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+			user_dict[request.sid] = p
+			for line in p.stdout:
+				markup = ['----------','==========']
+				if line.rstrip() not in markup: #each new solution is a new JSON object
+					solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
+					socketio.emit('solution', solution)
 
 
 @socketio.on('kill_solution')
