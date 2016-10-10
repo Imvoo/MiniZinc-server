@@ -74,7 +74,10 @@ def SaveTemplate():
 	if not os.path.exists('./app_templates/'):
 		os.makedirs('./app_templates/', exist_ok=True)
 
-	file = open('./app_templates/' + request.json['name'] + '.json', 'w')
+	modelName = request.json['name']
+	del request.json['name']
+
+	file = open('./app_templates/' + modelName + '.json', 'w')
 	json.dump(request.json, file, indent=4)
 	file.close()
 
