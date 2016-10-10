@@ -212,7 +212,7 @@ def request_solution(data):
 						# 	actually send out the packets instead of trying to compute a solution.
 						# This also stops the front-end lagging as not all the packets come in
 						# 	at the EXACT same time :).
-						time.sleep(0.001)
+						time.sleep(0.01)
 
 						currentSolution.clear()
 				else:
