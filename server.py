@@ -4,12 +4,14 @@ import os
 import re
 import tempfile
 import shutil
+import time
+from threading import Thread
 from eventlet.green import subprocess
 from flask import Flask, json, Response, request, render_template
 from flask_socketio import SocketIO, emit
 
 import eventlet
-eventlet.monkey_patch(thread=True)
+eventlet.monkey_patch(all=True)
 
 #setup
 app = Flask(__name__)
@@ -194,12 +196,31 @@ def request_solution(data):
 			for line in p.stdout:
 				if line.rstrip() in markup: #each new solution is a new JSON object
 					if currentSolution: # If currentSolution is not empty
+						# This isn't actually needed, but oh well :D
+						thread = Thread(target=sendPacket, kwargs=(currentSolution.copy()))
+						thread.start()
+
 						socketio.emit('solution', currentSolution)
+
+						# THIS DELAY RIGHT HERE...
+						# LITERALLY HOURS SPENT TRYING TO WORK OUT WHY PACKETS AREN'T SENDING...
+						# AND THIS FIXES IT???
+						# Oh well, just don't remove this line and we'll be fine.
+						# I tried adding an extra 0, but it sends too fast with it, so this is
+						# 	a good amount.
+						# I think the reason this works is it gives a chance for flask-socketio to
+						# 	actually send out the packets instead of trying to compute a solution.
+						# This also stops the front-end lagging as not all the packets come in
+						# 	at the EXACT same time :).
+						time.sleep(0.001)
+
 						currentSolution.clear()
 				else:
 					solution = pymzn.parse_dzn(line) #use pymzn to turn output into nice JSON objects
 					currentSolution.update(solution)
 
+def sendPacket(**currentSolution):
+	socketio.emit('solution', currentSolution)
 
 @socketio.on('kill_solution')
 def kill_solution():
