@@ -113,11 +113,22 @@ def Model(model):
 			# TODO: change this into it's separate process / real path.
 			with subprocess.Popen(["minizinc", folder + "/" + model + ".mzn", "-a", "-D", mzn_args],
 				stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
+				allSolutions = []
+				currentSolution = dict()
+				markup = ['----------']
+				finish = ['==========']
+
 				for line in p.stdout:
-					markup = ['----------','==========']
-					if line.rstrip() not in markup: #each new solution is a new JSON object
-						solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
-						yield solution
+					if line.rstrip() in markup: #each new solution is a new JSON object
+						if currentSolution: # If currentSolution is not empty
+							allSolutions.append(currentSolution.copy())
+							currentSolution.clear()
+					elif line.rstrip() in finish:
+						yield str(allSolutions).replace("\'", "\"")
+					else:
+						solution = pymzn.parse_dzn(line) #use pymzn to turn output into nice JSON objects
+						currentSolution.update(solution)
+
 		return Response(output_line(),  mimetype='text/json')
 	else:
 		return json.jsonify(error="no model found")
@@ -177,11 +188,17 @@ def request_solution(data):
 		with subprocess.Popen(["minizinc", tmpDirName + '/' + data['model']+".mzn", "-a", "-d", tmpFile.name],
 			stdout=subprocess.PIPE, stderr=subprocess.STDOUT, bufsize=1, universal_newlines=True) as p: #-a outputs all solutions
 			user_dict[request.sid] = p
+			currentSolution = dict()
+			markup = ['----------','==========']
+
 			for line in p.stdout:
-				markup = ['----------','==========']
-				if line.rstrip() not in markup: #each new solution is a new JSON object
-					solution = str(pymzn.parse_dzn(line)).replace('\'', '\"') #use pymzn to turn output into nice JSON objects
-					socketio.emit('solution', solution)
+				if line.rstrip() in markup: #each new solution is a new JSON object
+					if currentSolution: # If currentSolution is not empty
+						socketio.emit('solution', currentSolution)
+						currentSolution.clear()
+				else:
+					solution = pymzn.parse_dzn(line) #use pymzn to turn output into nice JSON objects
+					currentSolution.update(solution)
 
 
 @socketio.on('kill_solution')

@@ -77,32 +77,34 @@ constraint
 
     % Tasks on the same machine cannot overlap.
     %
-% constraint
-%     forall (
-%         ja in jobs,
-%         jb in (ja + 1)..n_jobs,
-%         ka, kb in tasks
-%     ) (
-%         if
-%            job_task_machine[ja, ka]  =  job_task_machine[jb, kb]
-%         then
-%             no_overlap(
-%                 job_task_start[ja, ka], job_task_duration[ja, ka],
-%                 job_task_start[jb, kb], job_task_duration[jb, kb]
-%             )
-%         else
-%             true
-%         endif
-%     );
+constraint
+    forall (
+        ja in jobs,
+        jb in (ja + 1)..n_jobs,
+        ka, kb in tasks
+    ) (
+        if
+           job_task_machine[ja, ka]  =  job_task_machine[jb, kb]
+        then
+            no_overlap(
+                job_task_start[ja, ka], job_task_duration[ja, ka],
+                job_task_start[jb, kb], job_task_duration[jb, kb]
+            )
+        else
+            true
+        endif
+    );
 
 include "globals.mzn";
 
-constraint forall (m in 0..n_machines-1) (
-  disjunctive(
-  [job_task_start[i,j] | i in jobs, j in tasks where job_task_machine[i,j]=m],
-  [job_task_duration[i,j] | i in jobs, j in tasks where job_task_machine[i,j]=m]
-  )
-);
+%constraint forall (m in 0..n_machines-1) (
+%  cumulative(
+%  [job_task_start[i,j] | i in jobs, j in tasks where job_task_machine[i,j]=m],
+%  [job_task_duration[i,j] | i in jobs, j in tasks where job_task_machine[i,j]=m],
+%  [1 | i in jobs, j in tasks where job_task_machine[i,j]=m],
+%  1
+%  )
+%);
 
 predicate no_overlap(var int: t_a, var int: d_a, var int: t_b, var int: d_b)  =
     ( t_a + d_a  <=  t_b )  \/  ( t_b + d_b  <=  t_a );
