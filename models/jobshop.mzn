@@ -25,7 +25,7 @@ set of int: machines = 0..n_machines-1;
     % job_task_machine[j, k] is the machine required by task k of job j.
 array [jobs, tasks] of int: job_task_machine;
 
-    % job_task_duration[k, k] is the duration of task k of job j.
+    % job_task_duration[j, k] is the duration of task k of job j.
 array [jobs, tasks] of int: job_task_duration;
 
 %-----------------------------------------------------------------------------%
